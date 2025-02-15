@@ -11,24 +11,25 @@ terraform {
   }
 }
 
+module "vpc" {
+  source                  = "./modules/vpc"
+  vpc_cidr_block          = var.vpc_cidr_block
+  public_subnet_cidr      = var.public_subnet_cidr
+  public_subnet_az        = var.public_subnet_az
+  private_subnet_1_cidr   = var.private_subnet_1_cidr
+  private_subnet_1_az     = var.private_subnet_1_az
+  private_subnet_2_cidr   = var.private_subnet_2_cidr
+  private_subnet_2_az     = var.private_subnet_2_az
+}
+
 module "ec2_instance" {
   source         = "./modules/ec2_instance"
-  instance_type  = "t2.micro"
-  subnet_id      = module.vpc.public_subnet_id # 👈 Public Subnet
+  instance_type  = var.instance_type
+  subnet_id      = module.vpc.public_subnet_id # Using the output from VPC module
   public_ip      = true
   instance_name  = "my-ec2-instance"
 }
 
-module "vpc" {
-  source                  = "./modules/vpc"
-  vpc_cidr_block          = "10.0.0.0/16"
-  public_subnet_cidr      = "10.0.1.0/24"
-  public_subnet_az        = "ap-southeast-1a"
-  private_subnet_1_cidr   = "10.0.2.0/24"
-  private_subnet_1_az     = "ap-southeast-1b"
-  private_subnet_2_cidr   = "10.0.3.0/24"
-  private_subnet_2_az     = "ap-southeast-1c"
-}
 
 resource "aws_s3_bucket" "bucket" {
   bucket = "my-terraform-example-bucket-2025"
